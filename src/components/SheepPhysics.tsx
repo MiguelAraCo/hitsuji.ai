@@ -44,7 +44,7 @@ export const SheepPhysics = () => {
         Matter.Bodies.rectangle(
           0,
           window.innerHeight / 2,
-          1,
+          2,
           window.innerHeight,
           { 
             isStatic: true,
@@ -55,11 +55,11 @@ export const SheepPhysics = () => {
         Matter.Bodies.rectangle(
           window.innerWidth,
           window.innerHeight / 2,
-          1,
+          2,
           window.innerHeight,
           { 
             isStatic: true,
-            render: { visible: true }
+            render: { visible: false }
           }
         )
       ];
