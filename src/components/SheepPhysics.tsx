@@ -15,53 +15,58 @@ export const SheepPhysics = () => {
       engine: engine,
       options: {
         width: window.innerWidth,
-        height: window.innerHeight,
+        height: window.innerHeight + 50,
         wireframes: false,
         background: 'transparent',
         pixelRatio: window.devicePixelRatio
       }
     });
 
-    // TODO: Find a fix for sheeps getting stuck in the floor when the ground is 1px
-    // Create walls and ground
-    const walls = [
-      // Ground
-      Matter.Bodies.rectangle(
-        window.innerWidth / 2,
-        window.innerHeight,
-        window.innerWidth,
-        20,
-        { 
-          isStatic: true,
-          render: { visible: false }
-        }
-      ),
-      // Left wall
-      Matter.Bodies.rectangle(
-        0,
-        window.innerHeight / 2,
-        1,
-        window.innerHeight,
-        { 
-          isStatic: true,
-          render: { visible: false }
-        }
-      ),
-      // Right wall
-      Matter.Bodies.rectangle(
-        window.innerWidth,
-        window.innerHeight / 2,
-        1,
-        window.innerHeight,
-        { 
-          isStatic: true,
-          render: { visible: true }
-        }
-      )
-    ];
+    let walls: Array<Matter.Body> | null = null;
+    const recreateWalls = () => {
+      if(walls !== null) {
+        Matter.World.remove(engine.world, walls);
+      }
 
-    // Add walls to the world
-    Matter.World.add(engine.world, walls);
+      walls = [
+        // Ground
+        Matter.Bodies.rectangle(
+          window.innerWidth / 2,
+          window.innerHeight + 50,
+          window.innerWidth,
+          100, // Double the bottom padding (since the rectangle is centered at the end of the canvas)
+          { 
+            isStatic: true,
+            render: { visible: false }
+          }
+        ),
+        // Left wall
+        Matter.Bodies.rectangle(
+          0,
+          window.innerHeight / 2,
+          1,
+          window.innerHeight,
+          { 
+            isStatic: true,
+            render: { visible: false }
+          }
+        ),
+        // Right wall
+        Matter.Bodies.rectangle(
+          window.innerWidth,
+          window.innerHeight / 2,
+          1,
+          window.innerHeight,
+          { 
+            isStatic: true,
+            render: { visible: true }
+          }
+        )
+      ];
+      Matter.World.add(engine.world, walls);
+    };
+
+    recreateWalls();
 
     Matter.Render.run(render);
 
@@ -73,24 +78,14 @@ export const SheepPhysics = () => {
 
     // Handle window resize
     const handleResize = () => {
-      render.canvas.width = window.innerWidth;
-      render.canvas.height = window.innerHeight;
+      Matter.Render.setSize(render, window.innerWidth, window.innerHeight + 50);
       
-      // Update walls positions
-      Matter.Body.setPosition(walls[0], {
-        x: window.innerWidth / 2,
-        y: window.innerHeight
-      });
-      Matter.Body.setPosition(walls[2], {
-        x: window.innerWidth,
-        y: window.innerHeight / 2
-      });
+      recreateWalls();
     };
 
     window.addEventListener('resize', handleResize);
 
-    // Handle clicks
-    const handleClick = (event: MouseEvent) => {
+    const createSheep = (x: number, y: number) => {
       const getScale = (size: number) => {
         return (size * 0.029) / 40;
       }
@@ -98,7 +93,7 @@ export const SheepPhysics = () => {
       // Get random size between 30-60, weighted towards 40
       const size = 40 + (Math.random() - Math.random()) * 20;
 
-      const sheep = Matter.Bodies.circle(event.clientX, event.clientY, size, {
+      const sheep = Matter.Bodies.circle(x, y, size, {
         restitution: 0.8,
         render: {
           sprite: {
@@ -113,7 +108,17 @@ export const SheepPhysics = () => {
       sheepBodiesRef.current.push(sheep);
     };
 
+    const handleClick = (event: MouseEvent) => {
+      createSheep(event.clientX, event.clientY);
+    };
+
     document.addEventListener('click', handleClick);
+
+    const rainInterval = setInterval(() => {
+      const randomX = Math.random() * (window.innerWidth - 100) + 50;
+
+      createSheep(randomX, -100);
+    }, 2000);
 
     return () => {
       Matter.Engine.clear(engine);
@@ -132,6 +137,7 @@ export const SheepPhysics = () => {
         left: 0,
         width: '100%',
         height: '100%',
+        overflow: 'hidden',
       }}
     />
   );
