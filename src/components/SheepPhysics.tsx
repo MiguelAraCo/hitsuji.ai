@@ -9,9 +9,7 @@ export const SheepPhysics = () => {
   useEffect(() => {
     if (!sceneRef.current) return;
 
-    // Initialize Matter.js
     const engine = Matter.Engine.create();
-
     const render = Matter.Render.create({
       element: sceneRef.current,
       engine: engine,
@@ -31,7 +29,7 @@ export const SheepPhysics = () => {
         window.innerWidth / 2,
         window.innerHeight,
         window.innerWidth,
-        10,
+        20,
         { 
           isStatic: true,
           render: { visible: false }
