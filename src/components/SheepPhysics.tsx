@@ -92,9 +92,11 @@ export const SheepPhysics = () => {
 
       // Get random size between 30-60, weighted towards 40
       const size = 40 + (Math.random() - Math.random()) * 20;
+      const angle = Math.PI * 2 + (Math.random() - Math.random()) * Math.PI * 2;
 
       const sheep = Matter.Bodies.circle(x, y, size, {
         restitution: 0.8,
+        angle,
         render: {
           sprite: {
             texture: '/hitsuji-ball--white.svg',
