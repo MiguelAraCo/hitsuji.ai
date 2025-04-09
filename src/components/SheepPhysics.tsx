@@ -116,16 +116,31 @@ export const SheepPhysics = () => {
 
     document.addEventListener('click', handleClick);
 
-    const rainInterval = setInterval(() => {
-      const randomX = Math.random() * (window.innerWidth - 100) + 50;
+    let rainInterval: number | null = null;
+    const stopRain = () => {
+      if(rainInterval !== null) clearInterval(rainInterval);
+    }
+    const startRain = () => {
+      stopRain();
+      rainInterval = setInterval(() => {
+        const randomX = Math.random() * (window.innerWidth - 100) + 50;
+  
+        createSheep(randomX, -100);
+      }, 2000);
+    };
+    startRain();
 
-      createSheep(randomX, -100);
-    }, 2000);
+    window.addEventListener('blur', stopRain);
+    window.addEventListener('focus', startRain);
 
     return () => {
+      stopRain();
+
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('blur', stopRain);
+      window.removeEventListener('focus', startRain);
       document.removeEventListener('click', handleClick);
     };
   }, []);
